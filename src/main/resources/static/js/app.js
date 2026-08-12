@@ -99,17 +99,17 @@
   // ------------------------------------------------------------------
   function saveSession() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ gameId: state.gameId, player: state.player }));
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ gameId: state.gameId, player: state.player }));
     } catch (e) { /* storage unavailable - non-fatal */ }
   }
 
   function clearSession() {
-    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+    try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
   }
 
   function loadSession() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = sessionStorage.getItem(STORAGE_KEY);
       return raw ? JSON.parse(raw) : null;
     } catch (e) {
       return null;
@@ -147,13 +147,33 @@
   // ------------------------------------------------------------------
   // WebSocket / STOMP
   // ------------------------------------------------------------------
-  function connectWebSocket(onConnected) {
+  function connectWebSocket() {
     const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
     const socket = new WebSocket(protocol + window.location.host + '/ws');
     const client = Stomp.over(socket);
     client.debug = null; // silence verbose STOMP frame logging
 
     client.connect({}, () => {
+
+      console.log(
+          "========== WEBSOCKET CONNECTED =========="
+      );
+
+      console.log(
+          "Game ID:",
+          state.gameId
+      );
+
+      console.log(
+          "Player:",
+          state.player
+      );
+
+      console.log(
+          "=========================================="
+      );
+
+
       state.connected = true;
       client.subscribe(`/topic/game/${state.gameId}`, (frame) => {
         try {
@@ -168,8 +188,6 @@
         gameId: state.gameId,
         player: state.player,
       }));
-
-      if (onConnected) onConnected();
     }, (error) => {
       console.error('STOMP connection error', error);
       showToast('Connection lost. Reconnecting…');
@@ -256,7 +274,7 @@
         showScreen('final');
       } else {
         showScreen('game');
-        resetMoveUI();
+        //resetMoveUI();
       }
     } else if (gameState.nitinJoined && gameState.saraJoined) {
       // Both have joined the room, but one hasn't opened the socket yet -
@@ -275,7 +293,7 @@
 
   function onRoundResult(payload) {
     clearTimeout(state.resultTimer);
-    state.moveLockedThisRound = false;
+    //state.moveLockedThisRound = false;
 
     el.resultRoundLabel.textContent = `ROUND ${payload.round} RESULT`;
     el.resultNitinEmoji.textContent = MOVE_EMOJI[payload.nitinMove];
@@ -311,6 +329,7 @@
   }
 
   function onNextRound(gameState) {
+    resetMoveUI();
     onGameStateUpdate(gameState);
   }
 
@@ -472,7 +491,7 @@
       state.gameId = gameState.gameId;
       saveSession();
       el.waitingGameCode.textContent = state.gameId;
-      connectWebSocket(() => onGameStateUpdate(gameState));
+      connectWebSocket();
     } catch (err) {
       el.lobbyError.textContent = err.message;
     }
@@ -540,5 +559,5 @@
   // Boot
   // ------------------------------------------------------------------
   showScreen('landing');
-  attemptRestoreSession();
+  //attemptRestoreSession();
 })();

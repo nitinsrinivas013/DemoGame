@@ -556,6 +556,9 @@ button {
   padding: 20px;
   animation: overlay-in 0.25s ease both;
 }
+.result-overlay[hidden] {
+  display: none !important;
+}
 
 @keyframes overlay-in {
   from { opacity: 0; }
