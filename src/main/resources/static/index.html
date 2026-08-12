@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Rock Paper Scissors — Nitin vs Sara</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="bg-decor" aria-hidden="true"></div>
+
+<main class="app" id="app">
+
+  <!-- ============ SCREEN: LANDING ============ -->
+  <section class="screen active" id="screen-landing" aria-labelledby="landing-title">
+    <div class="card card-landing">
+      <p class="eyebrow">Best of 10 rounds</p>
+      <h1 id="landing-title" class="title">
+        <span class="emoji" aria-hidden="true">🪨📄✂️</span>
+        ROCK PAPER SCISSORS
+      </h1>
+      <p class="subtitle">Nitin <span class="vs">vs</span> Sara</p>
+
+      <div class="role-buttons">
+        <button class="btn btn-role btn-nitin" id="btn-play-nitin" type="button">
+          <span class="role-name">PLAY AS NITIN</span>
+        </button>
+        <button class="btn btn-role btn-sara" id="btn-play-sara" type="button">
+          <span class="role-name">PLAY AS SARA</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN: CREATE OR JOIN ============ -->
+  <section class="screen" id="screen-lobby" aria-labelledby="lobby-title">
+    <div class="card">
+      <p class="eyebrow">Playing as <span id="lobby-player-name">—</span></p>
+      <h2 id="lobby-title" class="section-title">Start or join a game</h2>
+
+      <div class="lobby-actions">
+        <button class="btn btn-primary" id="btn-create-game" type="button">CREATE NEW GAME</button>
+
+        <div class="divider"><span>or</span></div>
+
+        <form id="form-join-game" class="join-form" autocomplete="off">
+          <label for="input-game-code" class="field-label">Enter Game Code</label>
+          <input
+            id="input-game-code"
+            name="gameCode"
+            class="game-code-input"
+            type="text"
+            inputmode="text"
+            autocapitalize="characters"
+            maxlength="6"
+            placeholder="ABC123"
+            aria-describedby="join-error"
+            required>
+          <button class="btn btn-secondary" type="submit">JOIN GAME</button>
+        </form>
+      </div>
+
+      <p class="error-text" id="lobby-error" role="alert" aria-live="assertive"></p>
+      <button class="btn btn-link" id="btn-back-landing" type="button">← Back</button>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN: WAITING FOR OPPONENT ============ -->
+  <section class="screen" id="screen-waiting" aria-labelledby="waiting-title">
+    <div class="card">
+      <div class="spinner" aria-hidden="true"></div>
+      <h2 id="waiting-title" class="section-title">Waiting for your opponent…</h2>
+      <p class="muted">Share this code so the other player can join.</p>
+
+      <div class="game-code-display">
+        <span class="game-code-label">GAME CODE</span>
+        <span class="game-code-value" id="waiting-game-code">——————</span>
+      </div>
+
+      <button class="btn btn-secondary" id="btn-copy-code" type="button">COPY GAME CODE</button>
+      <p class="copy-feedback" id="copy-feedback" role="status" aria-live="polite"></p>
+
+      <p class="muted small">The game starts automatically the moment they join — no need to refresh.</p>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN: GAME ============ -->
+  <section class="screen" id="screen-game" aria-labelledby="round-heading">
+    <div class="game-wrap">
+
+      <header class="game-header">
+        <h2 id="round-heading" class="round-heading">
+          ROUND <span id="round-current">1</span> / <span id="round-total">10</span>
+        </h2>
+
+        <div class="scoreboard" aria-label="Current score">
+          <div class="score-side score-nitin">
+            <span class="score-player-name">NITIN</span>
+            <span class="score-value" id="score-nitin">0</span>
+          </div>
+          <span class="score-sep">–</span>
+          <div class="score-side score-sara">
+            <span class="score-value" id="score-sara">0</span>
+            <span class="score-player-name">SARA</span>
+          </div>
+        </div>
+      </header>
+
+      <p class="connection-banner" id="opponent-status-banner" role="status" aria-live="polite" hidden></p>
+
+      <div class="move-panel" id="move-panel">
+        <p class="prompt" id="move-prompt">Choose your move</p>
+
+        <div class="move-buttons" role="group" aria-label="Choose your move">
+          <button class="btn move-btn" data-move="ROCK" type="button">
+            <span class="move-emoji" aria-hidden="true">🪨</span>
+            <span class="move-label">ROCK</span>
+          </button>
+          <button class="btn move-btn" data-move="PAPER" type="button">
+            <span class="move-emoji" aria-hidden="true">📄</span>
+            <span class="move-label">PAPER</span>
+          </button>
+          <button class="btn move-btn" data-move="SCISSORS" type="button">
+            <span class="move-emoji" aria-hidden="true">✂️</span>
+            <span class="move-label">SCISSORS</span>
+          </button>
+        </div>
+
+        <div class="waiting-note" id="waiting-note" hidden>
+          <p>You chose:</p>
+          <p class="my-move" id="my-move-display"></p>
+          <p class="muted">Waiting for <span id="opponent-name-label">opponent</span>…</p>
+        </div>
+      </div>
+
+      <!-- Round result overlay -->
+      <div class="result-overlay" id="result-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="result-heading">
+        <div class="result-card">
+          <p class="result-round-label" id="result-round-label">ROUND 1 RESULT</p>
+
+          <div class="result-moves">
+            <div class="result-player">
+              <span class="result-player-name">Nitin</span>
+              <span class="result-move-emoji" id="result-nitin-emoji">🪨</span>
+            </div>
+            <span class="result-vs">VS</span>
+            <div class="result-player">
+              <span class="result-player-name">Sara</span>
+              <span class="result-move-emoji" id="result-sara-emoji">✂️</span>
+            </div>
+          </div>
+
+          <p class="result-outcome" id="result-heading">Nitin wins this round!</p>
+
+          <div class="result-score">
+            <span id="result-score-nitin">0</span>
+            <span class="result-score-sep">–</span>
+            <span id="result-score-sara">0</span>
+          </div>
+
+          <p class="muted small" id="result-next-note">Next round starting…</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ SCREEN: FINAL RESULTS ============ -->
+  <section class="screen" id="screen-final" aria-labelledby="final-title">
+    <div class="final-wrap">
+      <div class="card card-final">
+        <p class="trophy" aria-hidden="true">🏆</p>
+        <h2 id="final-title" class="section-title">FINAL RESULTS</h2>
+
+        <div class="final-score">
+          <div class="final-score-side">
+            <span class="final-score-name">NITIN</span>
+            <span class="final-score-value" id="final-nitin-score">0</span>
+          </div>
+          <div class="final-score-side">
+            <span class="final-score-name">SARA</span>
+            <span class="final-score-value" id="final-sara-score">0</span>
+          </div>
+        </div>
+
+        <p class="final-winner-line" id="final-winner-line">Nitin wins the match!</p>
+
+        <div class="final-stats">
+          <p>10 ROUNDS PLAYED</p>
+          <p><span id="final-nitin-wins">0</span> Nitin wins · <span id="final-sara-wins">0</span> Sara wins · <span id="final-draws">0</span> draws</p>
+        </div>
+
+        <button class="btn btn-primary" id="btn-play-again" type="button">PLAY AGAIN</button>
+      </div>
+
+      <div class="card card-history">
+        <h3 class="section-title small">ROUND HISTORY</h3>
+        <div class="history-list" id="history-list" role="list"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast" role="alert" aria-live="assertive" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
