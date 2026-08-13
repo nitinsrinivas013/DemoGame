@@ -1,7 +1,7 @@
-# Rock Paper Scissors — Nitin vs Sara
+# Rock Paper Scissors — Player1 vs Player2
 
 A legitimate, server-authoritative, real-time multiplayer Rock Paper Scissors game
-for exactly two named players — **Nitin** and **Sara** — playing a best-of-10 match.
+for exactly two players — **Player1** and **Player2** — playing a best-of-10 match.
 
 There is no rigging, no predetermined winners, and no player-specific advantage.
 The server is the single source of truth for every move, every round, and every score.
@@ -18,7 +18,7 @@ receives — nothing is calculated, guessed, or trusted from the browser.
 
 ## Features
 
-- Landing page with **PLAY AS NITIN** / **PLAY AS SARA** role selection
+- Landing page with **PLAY AS Player1** / **PLAY AS Player2** role selection
 - Room-code based matchmaking (create or join with a 6-character code), no accounts
 - Real-time play over STOMP-over-WebSocket
 - Server-authoritative round resolution (frontend never computes a winner)
@@ -33,7 +33,7 @@ receives — nothing is calculated, guessed, or trusted from the browser.
 ## Architecture
 
 ```
-Browser (Nitin)                         Browser (Sara)
+Browser (Player1)                         Browser (Player2)
      |                                        |
      |  REST: create/join game                |
      |  STOMP/WebSocket: /ws                  |
@@ -84,14 +84,14 @@ a score, or the opponent's move — the server rejects anything it didn't calcul
 
 | Method | Path | Body | Purpose |
 |---|---|---|---|
-| `POST` | `/api/games` | `{ "player": "NITIN" }` | Create a game, claim a role, get a room code |
-| `POST` | `/api/games/{gameId}/join` | `{ "player": "SARA" }` | Join an existing game with the other role |
+| `POST` | `/api/games` | `{ "player": "Player1" }` | Create a game, claim a role, get a room code |
+| `POST` | `/api/games/{gameId}/join` | `{ "player": "Player2" }` | Join an existing game with the other role |
 | `GET` | `/api/games/{gameId}` | — | Fetch the current game state (used on reconnect) |
 
 ## Game Flow
 
 ```
-Landing → pick Nitin/Sara → create or join with room code
+Landing → pick Player1/Player2 → create or join with room code
    → waiting screen (until both connected)
    → GAME_STARTED → Round 1..10:
         each player picks Rock/Paper/Scissors independently
@@ -137,8 +137,8 @@ The app starts on **http://localhost:8080**.
 
 ## Testing Two Players Locally
 
-1. Open **http://localhost:8080** in one browser window → click **PLAY AS NITIN** → **CREATE NEW GAME**. Note the room code.
-2. Open a **second** window (or an incognito window, or a different browser) at **http://localhost:8080** → click **PLAY AS SARA** → enter the room code → **JOIN GAME**.
+1. Open **http://localhost:8080** in one browser window → click **PLAY AS Player1** → **CREATE NEW GAME**. Note the room code.
+2. Open a **second** window (or an incognito window, or a different browser) at **http://localhost:8080** → click **PLAY AS Player2** → enter the room code → **JOIN GAME**.
 3. Both windows should transition to Round 1 automatically. Play through all 10 rounds.
 
 ## Running with Maven
@@ -186,7 +186,7 @@ Assumes **Ubuntu 24.04 LTS**.
    ```
 8. **Clone the GitHub repository:**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/rock-paper-scissors.git
+   git clone https://github.com/YOUR_USERNAME/DemoGame.git
    cd rock-paper-scissors
    ```
 9. **Build the application:**
@@ -317,7 +317,7 @@ to run a public game session unencrypted once you have a real domain.
 - The frontend stores `{ gameId, player }` in `localStorage` and reconnects automatically on page reload, restoring state from `GET /api/games/{gameId}`. If the server has restarted, in-memory state is gone and the stored session is discarded automatically — the player lands back on the landing page.
 
 **Duplicate player roles**
-- The server rejects a second `NITIN` or a second `SARA` joining the same room with a `409` (`INVALID_ACTION`). If you see this unexpectedly, someone (maybe a second tab) already claimed that role in that room — use the other role or a new room code.
+- The server rejects a second `Player1` or a second `Player2` joining the same room with a `409` (`INVALID_ACTION`). If you see this unexpectedly, someone (maybe a second tab) already claimed that role in that room — use the other role or a new room code.
 
 **Browser caching**
 - If you deploy an update and the browser still shows old behavior, hard-refresh (Ctrl/Cmd+Shift+R) — static assets under `static/` are served with default caching by Spring Boot.
@@ -351,11 +351,11 @@ ssh -i your-key.pem ubuntu@EC2_PUBLIC_IP
 sudo apt update
 sudo apt install -y openjdk-21-jdk maven git nginx
 
-git clone https://github.com/YOUR_USERNAME/rock-paper-scissors.git
+git clone https://github.com/YOUR_USERNAME/DemoGame.git
 cd rock-paper-scissors
 mvn clean package -DskipTests
 
-nohup java -jar target/rock-paper-scissors.jar > app.log 2>&1 &
+nohup java -jar target/DemoGame.jar > app.log 2>&1 &
 
 # (then configure Nginx + Certbot as described above, and close port 8080
 #  in the EC2 security group once /ws proxies correctly through Nginx)
